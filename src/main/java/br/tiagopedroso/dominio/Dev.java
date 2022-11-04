@@ -1,77 +1,73 @@
 package br.tiagopedroso.dominio;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class Dev {
     private String nome;
-    private Set<Conteudo> conteudosInscritos = new LinkedHashSet<>();
-    private Set<Conteudo> conteudosConcluidos = new LinkedHashSet<>();
+    private Set<Atividade> atividadesInscritas = new LinkedHashSet<>();
+    private Set<Atividade> atividadesConcluidas = new LinkedHashSet<>();
 
-    public void inscreverBootcamp(Bootcamp bootcamp){
-        this.conteudosInscritos.addAll(bootcamp.getConteudos());
+    private Set<Bootcamp> bootcampsIncritos = new LinkedHashSet<>();
+
+    public Dev(String nome) {
+        this.nome = nome;
+    }
+
+    public void inscreverBootcamp(Bootcamp bootcamp) {
+        this.bootcampsIncritos.add(bootcamp);
+        this.atividadesInscritas.addAll(bootcamp.getAtividades());
         bootcamp.getDevsInscritos().add(this);
     }
 
     public void progredir() {
-        Optional<Conteudo> conteudo = this.conteudosInscritos.stream().findFirst();
-        if(conteudo.isPresent()) {
-            this.conteudosConcluidos.add(conteudo.get());
-            this.conteudosInscritos.remove(conteudo.get());
+        Optional<Atividade> atividade = this.atividadesInscritas.stream().findFirst();
+        if (atividade.isPresent()) {
+            atividade.get().setConcluido(true);
+            this.atividadesConcluidas.add(atividade.get());
+            this.atividadesInscritas.remove(atividade.get());
         } else {
             System.err.println("Você não está matriculado em nenhum conteúdo!");
         }
     }
 
     public double calcularTotalXp() {
-        Iterator<Conteudo> iterator = this.conteudosConcluidos.iterator();
-        double soma = 0;
-        while(iterator.hasNext()){
-            double next = iterator.next().calcularXp();
-            soma += next;
-        }
-        return soma;
-
-        /*return this.conteudosConcluidos
+        return this.atividadesConcluidas
                 .stream()
-                .mapToDouble(Conteudo::calcularXp)
-                .sum();*/
+                .mapToDouble(Atividade::calcularXp)
+                .sum();
     }
 
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public Set<Conteudo> getConteudosInscritos() {
-        return conteudosInscritos;
-    }
-
-    public void setConteudosInscritos(Set<Conteudo> conteudosInscritos) {
-        this.conteudosInscritos = conteudosInscritos;
-    }
-
-    public Set<Conteudo> getConteudosConcluidos() {
-        return conteudosConcluidos;
-    }
-
-    public void setConteudosConcluidos(Set<Conteudo> conteudosConcluidos) {
-        this.conteudosConcluidos = conteudosConcluidos;
+    @Override
+    public int hashCode() {
+        return Objects.hash(nome, atividadesInscritas, atividadesConcluidas);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Dev dev = (Dev) o;
-        return Objects.equals(nome, dev.nome) && Objects.equals(conteudosInscritos, dev.conteudosInscritos) && Objects.equals(conteudosConcluidos, dev.conteudosConcluidos);
+        if (!(o instanceof Dev dev)) return false;
+
+        return Objects.equals(nome, dev.nome) &&
+                calcularTotalXp() == dev.calcularTotalXp();
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(nome, conteudosInscritos, conteudosConcluidos);
+    public String toString() {
+        return "Dev{ " +
+                "nome='" + getNome() + '\'' +
+                ", totalXp='" + calcularTotalXp() +
+                ", totalAtividadesInscritas=" + atividadesInscritas.size() +
+                ", totalAtividadesConcluidas=" + atividadesConcluidas.size() +
+                ", totalBootcampsInscritos=" + bootcampsIncritos.size() +
+                " }";
     }
+
+
 }

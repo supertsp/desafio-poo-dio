@@ -1,33 +1,50 @@
 package br.tiagopedroso.dominio;
 
-import java.time.LocalDate;
+import lombok.Getter;
+import lombok.Setter;
 
-public class Mentoria extends Conteudo{
+import java.time.LocalDateTime;
+import java.util.Objects;
 
-    private LocalDate data;
+@Getter
+@Setter
+public class Mentoria extends Atividade implements XpCalculavel {
+
+    private LocalDateTime dataLiberacao;
+    private String url;
 
     @Override
     public double calcularXp() {
         return XP_PADRAO + 20d;
     }
 
-    public Mentoria() {
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTitulo(), getDescricao(), getDataLiberacao(), getUrl());
     }
 
-    public LocalDate getData() {
-        return data;
-    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Mentoria mentoria)) return false;
 
-    public void setData(LocalDate data) {
-        this.data = data;
+        return Objects.equals(getTitulo(), mentoria.getTitulo()) &&
+                Objects.equals(getDescricao(), mentoria.getDescricao()) &&
+                Objects.equals(getDataLiberacao(), mentoria.getDataLiberacao()) &&
+                Objects.equals(getUrl(), mentoria.getUrl());
     }
 
     @Override
     public String toString() {
-        return "Mentoria{" +
+        return "Mentoria{ " +
                 "titulo='" + getTitulo() + '\'' +
                 ", descricao='" + getDescricao() + '\'' +
-                ", data=" + data +
-                '}';
+                ", criadoEm='" + getCriadoEm() + '\'' +
+                ", dataLiberacao=" + getDataLiberacao() +
+                ", url=" + getUrl() +
+                ", concluido=" + isConcluido() +
+                ", xp=" + calcularXp() +
+                " }";
     }
+
 }
